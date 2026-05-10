@@ -319,7 +319,7 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 |---|---|---|---|
 | Derek Rojo | Designer / Marketing | Trainee Dev frontend | Marketing y diseño |
 | Gallbers Gallardo | Tech Lead / Blockchain Engineer | Frontend, Backend | CTO | 
-| Gabriel Torres | Smart contracts / Anchor | Frontend, Backend | Smart contracts / Anchor / CEO & Co-founder |
+| Gabriel Torres | Smart contracts / Anchor | Frontend, Backend | Smart contracts / CEO & Co-founder |
 | José Medina | Frontend / Integraciones | Frontend | Co-founder & Frontend Dev |
 | Kevin Araujo | Backend Dev | Frontend integraciones y maquetación | Backend Dev |
 | Raúl González | Backend / Integraciones | Frontend Integraciones / Organizacion | Co-founder & Backend Lead |
