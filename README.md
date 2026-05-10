@@ -321,5 +321,5 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 | Gallbers Gallardo | Tech Lead / Blockchain Engineer | Frontend, Backend | CTO | 
 | Gabriel Torres | Smart contracts / Anchor | Frontend, Backend | Smart contracts / Anchor / CEO & Co-founder |
 | José Medina | Frontend / Integraciones | Frontend | Co-founder & Frontend Dev |
-| Kevin Araujo | Backend | Frontend integraciones |  |
+| Kevin Araujo | Backend Dev | Frontend integraciones y maquetación | Backend Dev |
 | Raúl González | Backend / Integraciones | Frontend Integraciones / Organizacion | Co-founder & Backend Lead |
