@@ -1,6 +1,6 @@
 # Stayke — Documento de Diseño del Proyecto
 
-> Estado: borrador de trabajo. Revisión manual pendiente.
+> Estado: borrador de trabajo. Revisión pendiente.
 
 ---
 
@@ -11,6 +11,41 @@ Stayke es una plataforma descentralizada de alquileres a corto plazo construida 
 **El argumento central:** La reputación, identidad y garantías pertenecen al usuario, no a la plataforma. Si Stayke cierra mañana, el historial del usuario sigue existiendo on-chain y cualquier otra plataforma puede leerlo.
 
 **Público objetivo primario:** Usuarios no-crypto. La estrategia de onboarding es migrar gente del mundo Web2 al mundo Web3 de forma gradual y sin fricción.
+
+---
+
+### Misión
+
+Garantizamos la seguridad, reputación, confianza e identidad de todos los usuarios en cada reserva que realicen dándoles la propiedad de sus datos a ellos y no a Stayke.
+
+### Visión
+
+Queremos ser precursores en una infraestructura que cree una reputación de confianza online para reservas y otras múltiples actividades que puedan realizar nuestros clientes. idad
+
+---
+
+### Modelo de negocios:
+
+El nucleo del modelo de negocios usa la reservación de propiedades como fuente de ingresos principal, sin embargo, esto provoca que Stayke compita contra negocios con más confianza y viejos en este mercado, por eso nosotros decidimos dejar de lado la competencia y enfocarnos en mercados pequeños a los que las empresas grandes no pueden llegar por fricciones bancarias y falta de confianza. 
+
+Stayke opera dentro de la blockchain de Solana para mantener un registro público de la reputación de un usuario sin tener que almacenar datos públicos delicados y evadir las fricciones bancarias de distintos países sin complicar la comunicación con la blockchain usando Privy como wallet embebida.
+
+Para que Stayke pueda ofrecer seguridad, este exigirá un depósito inicial luego de la primera reserva o hosting realizado que permanacerá en una tesorería controlada por el contrato inteligente. El objetivo de la tesorería es que se penalice a los usuarios que cometan alguna infracción y sirva de recompensación a los usuarios que sufrieron el percance. Esto aumenta la fricción de los usuarios que ingresan a la plataforma, pero garantiza que aquellos que ingresen son personas de confianza.
+
+Más allá de que Stayke ofrezca como servicio base la renta de propiedades, decidimos crear un par de beneficios alrededor de este para aumentar su atractivo y crear un mercado nuevo: 
+- Ofrecer lending y staking opcional para los usuarios que tengan dinero depositado para que, incluso en momentos sin reservas, tengan ingresos pasivos por el dinero en protocolos de liquidez.
+- Crear una modalidad de re-venta de reservas autorizada por el cliente y el host con limitaciones reales.
+- Ofrecer beneficios a los usuarios con bastante dinero depositado puesto que esto es sinónimo de confianza en el protocolo.
+
+#### Ideas para expandir el negocio
+- Creación de tokens por tiempo en la plataforma otorgando beneficios a los usuarios.
+- Ampliar el negocio de reservas a distintos mercados donde la reputación sea de relevancia como la renta de carros, servicios, etc.
+- Implementar protocolo x402 con inteligencia artificial para que usuarios ocupados puedan simplemente asignar a su modelo de confianza el lugar que esté más adaptado a su personalidad.
+- Implementar búsqueda de propiedades para reservar con fundamento en la personalidad y necesidades del usuario utilizando modelos de IA recientes.
+- Pagos para aumentar la visibilidad de la propiedad en la plataforma.
+- El dinero bloqueado para una reserva puede ser enviado a un fondo de liquidez por elección del host y el cliente para obtener beneficios durante el tiempo que dure la reserva.
+- Ofrecer descuentos por una determinada cantidad de reservas culminadas exitosamente.
+- Habilitar una red de recomendaciones que visibilice lugares basado en: países con escaso turismo, gustos personales y antiguos lugares visitados
 
 ---
 
@@ -25,6 +60,8 @@ Stayke es una plataforma descentralizada de alquileres a corto plazo construida 
 | Frontend | Interfaz de usuario, integración wallet | Next.js |
 
 La `pubkey` del usuario es la **foreign key universal** que une ambas capas.
+
+Stayke sigue una arquitectura híbrida usando la blockchain como la fuente de la verdad y un backend como referencias a información de los usuarios en la blockchain.
 
 ### Principio de separación
 
@@ -75,6 +112,61 @@ Usamos la verificación con Privy.
 | `UserProfile` (on-chain) | Cuenta de uso normal. Linked al `IdentityAccount`. | Mutable |
 | `ReputationProfile` (on-chain) | Cuenta que almacena todos los datos relativos a la reputacion del usuario. | Mutable |
 
+**Estructura de cuentas:**
+
+```
+pub struct ReputationProfile {
+    pub owner: Pubkey,
+    pub host_reviews: u32,     // Number of reviews received as host
+    pub total_score_host: u64, // Total score from reviews (e.g., sum of ratings)
+    pub client_reviews: u32,     // Number of reviews received as client
+    pub total_score_client: u64, // Total score from reviews (e.g., sum of ratings)
+    pub hosted_stays: u32,    // Number of stays hosted
+    pub completed_stays: u32, // Number of stays completed as a guest
+    pub host_cancellations: u32,   // Number of cancellations as host
+    pub client_cancellations: u32, // Number of cancellations as client
+    pub host_cancellations_within_48h: u32, // Number of cancellations as host within 24 hours of the stay
+    pub client_cancellations_within_48h: u32, // Number of cancellations as host within 24 hours of the stay
+    pub low_infractions: u8,
+    pub medium_infractions: u8,
+    pub high_infractions: u8,
+    pub last_updated: i64, // unix timestamp of the last update to the reputation profile
+    pub bump: u8,
+}
+
+pub struct UserProfile {
+    pub owner: Pubkey,
+    pub identity: Pubkey,
+    pub active_booking: Option<Pubkey>,
+    pub active_stay: Option<Pubkey>,
+
+    // This field represents the total amount of tokens that the user has deposited in the platform, excluding the ones that are currently being used for lending and staking.
+    pub deposited: u64,
+    pub deposit_timestamp: i64,
+    pub lending: u64, // This field represents the total amount of tokens that the user has lent
+    pub staked: u64, // This field represents the amount of liquid staked tokens that the user has.
+    pub is_verified: bool,
+
+    // Counter for the amount of listings that the user has created, this is used to generate the listing_id for each listing created by the user.
+    pub listings: u16,
+    pub bump: u8,
+}
+
+pub struct Identity {
+    pub owner: Pubkey,
+    pub country_code: [u8; 2],
+    pub id: [u8; 32],
+    pub verified_at: i64,         // unix timestamp
+    pub verifier: Option<Pubkey>, // who verified (oracle, admin, or the very program)
+    pub doc_type: DocType,
+    pub is_frozen: bool,
+    pub is_banned: bool,
+    pub banned_at: i64 
+    pub bump: u8,
+}
+
+```
+
 ### Por qué tres cuentas
 
 Si un usuario es baneado, el `IdentityAccount` se congela. El programa rechaza crear un nuevo `UserProfile` y un `ReputationProfile` que lo referencie. No es infalible (podría usar documento de tercero), pero encarece significativamente la evasión.
@@ -122,20 +214,11 @@ Si el PDA ya existe → `AccountAlreadyInitialized` → unicidad garantizada sin
 
 ```
 Usuario → sube documento al frontend
-Frontend → envía al backend (Sumsub SDK)
+Frontend → envía al backend (Didit SDK)
 Sumsub → valida el documento real
 Backend → computa hash(canonical), firma verify_identity(commitment)
 Programa Anchor → crea/actualiza IdentityAccount
 ```
-
-### Roadmap de verificación
-
-| Versión | Modelo |
-|---|---|
-| V1 (hackathon) | Admin/oracle firma verificaciones |
-| V2 | Ban automático por patrón, apelación a jurado |
-| V3 | ZK proof o integración Civic/Worldcoin con volumen suficiente |
-
 ---
 
 ## Modelo económico
@@ -145,6 +228,10 @@ Programa Anchor → crea/actualiza IdentityAccount
 **USDC** es el token principal para todas las transacciones. Justificación: ampliamente adoptado en Solana, fondos auditados, más legal que USDT.
 
 ### Dos fondos completamente separados
+
+Para reducir la fricción por el uso de un depósito inicial, la primera operación en la plataforma puede ser sin un fondo
+de depósito inicial. El objetivo es que los usuarios perciban que la plataforma realmente no intercede en el dinero que ellos poseen.
+
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -159,6 +246,7 @@ Programa Anchor → crea/actualiza IdentityAccount
 │ Excedente → mSOL/jSOL si el usuario lo autoriza         │
 └─────────────────────────────────────────────────────────┘
 
+
 ┌─────────────────────────────────────────────────────────┐
 │ ESCROW DE RESERVA                                       │
 │                                                         │
@@ -172,10 +260,6 @@ Programa Anchor → crea/actualiza IdentityAccount
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Fondo de reservas
-
-Al igual que las millas de viaje por la distancia recorrida en una aerolínea, Stayke debe considerar crear una promoción del mismo estilo por la cantidad de reservas que haga el usuario funcionando como un tipo de fondo de ahorro por cada reserva que haga.
-
 ### Yield
 
 *Es siempre opcional hacer lending.*
@@ -185,6 +269,42 @@ Al igual que las millas de viaje por la distancia recorrida en una aerolínea, S
 | Kamino USDC lending | ~4-10% | USDC | Ninguna |
 | mSOL (Marinade) | ~5.95% | SOL | Expuesto a precio SOL |
 | jitoSOL (Jito) | ~6-7% | SOL | Expuesto a precio SOL |
+
+---
+
+## Mercado de reservación
+
+**Flujo de reservas:** 
+1. Solicitud — El huésped selecciona una propiedad e inicia la reserva.
+2. Creación de cuentas — El sistema genera automáticamente una cuenta que registra los días de la reserva y una cuenta de reserva con toda la información relevante, pendiente de aprobación del host.
+3. Aprobación doble — Si el host acepta, el huésped debe confirmar la reserva y realizar un depósito a la cuenta escrow.
+4. Fondos en escrow — A partir de este momento el dinero queda congelado. Si el host lo tiene habilitado, puede iniciarse la operación de reventa.
+5. Estado "En proceso" — Al llegar la fecha de ingreso, debe realizarse una llamada al contrato para activar este estado.
+6. Período de disputas — Solo durante el estado "En proceso" es posible abrir una disputa. Para cerrar la reserva, ambas partes deben estar de acuerdo.
+7. Reseñas obligatorias — Antes de finalizar, tanto el huésped como el host deben dejar su calificación. Sin reseñas pendientes no es posible iniciar una nueva reserva.
+
+**Reglas importantes**
+
+- Cancelación tardía — Cancelar dentro de los dos días previos al ingreso genera un slash tanto al host como a Stayke.
+- Comportamiento reiterativo — Si un usuario inicia y cancela reservas con frecuencia, recibirá una amonestación que afectará su reputación en la plataforma.
+
+**Propuesta: fondo de liquidez**
+Mientras los fondos permanecen en escrow durante la reserva, podrían redirigirse a un fondo de liquidez para generar rendimientos adicionales al host y a Stayke. Condiciones por considerar:
+
+- Requiere aprobación del host.
+- Si la opción aplica durante todo el período en que exista la cuenta escrow (incluyendo la posibilidad de cancelación), también necesitaría aprobación del huésped.
+- Solo activo durante la vigencia de la reserva confirmada.
+
+---
+
+## Mercado de re-venta de reservas
+
+Un mercado de re-venta de reservas crea una economía dentro de la plataforma permitiendo que un usuario haga una o varias reservas para su venta a distintos usuarios.
+Aunque suena como una idea atractiva, debe estar limitada en los diferentes aspectos puesto que el mal uso de distintos usuarios reduciría el movimiento
+en lugar de aumentarlo. Los aspectos son los siguientes: 
+- La plataforma no debe permitir la re-venta de reservas sin un acuerdo previo entre el usuario y el host solicitado en cada reserva que realicen ambos.
+- La re-venta solo se puede completar si el host acepta al nuevo usuario al que se le desea transferir la reserva puesto que se está poniendo en riesgo al host.
+- Si se cancela una reserva que se puede vender en el plazo de dos días antes de la misma reserva, se hará un slash del depósito que se le dará la host y a Stayke.
 
 ---
 
@@ -215,27 +335,29 @@ Ningún sistema puede banear de forma 100% certera. El objetivo es **encarecer l
 ### Flujo de disputa
 
 ```
-1. Usuario abre disputa → deposita stake para activarla
-2. Se crea DisputeAccount on-chain
-3. Evidencia off-chain se adjunta al backend
-4. Admin (MVP) o jurado (V2) revisa
-5. Resolución:
+1. Usuario abre disputa
+2. Se crea DisputeAccount on-
+3. Se establece un límite para que los usuarios suban sus evidencias y la disputa sea resuelta por Stayke
+4. Evidencia off-chain se adjunta al backend
+5. Usuarios resuelven entre ellos la disputa determinando si hubo realmente algún problema y determinando el slash si es que hubo un problema.
+6. En el caso de que la disputa no se haya resuelto en la ventana de tiempo establecida, se escalará a Stayke.
+7. Admin (MVP) o jurado (V2) revisa
+8. Resolución:
    - Si el denunciante tenía razón → recupera stake + compensación
    - Si el denunciante estaba equivocado → stake va al pool de resolución
 ```
 
 ### Slash progresivo
 
-| Evento | Consecuencia |
-|---|---|
-| 1 disputa perdida | Warning |
-| 2 disputas perdidas | Restricción temporal automática |
-| 3 disputas perdidas | Ban automático, apelación posible |
-| Infracción muy grave | Slash total + ban inmediato |
+La cantidad de disputas mínimas para un baneo debe ser consideraba por la gravedad del problema y no solo por la cantidad total.
 
 El slash siempre se ejecuta primero sobre la porción en lending (más líquida), luego sobre la porción en staking si la hubiera.
 
-### Modelo de resolución
+El porcentaje del slash debe variar de acuerdo a la gravedad de la disputa y es algo que aún está por definir: 
+
+**Slash por gravedad de disputa:**
+
+### Modelo de resolución escalado
 
 **MVP (hackathon):** Administradores centralizados e imparciales provistos por Stayke. Solo pueden juzgar disputas — no pueden remover baneos arbitrariamente ni modificar el protocolo.
 
@@ -262,7 +384,11 @@ Nivel 2 — Usuario avanzado
 
 ---
 
-## Por definir
+## Ideas experimentales por definir
+
+### Fondo de reservas
+
+Al igual que las millas de viaje por la distancia recorrida en una aerolínea, Stayke debe considerar crear una promoción del mismo estilo por la cantidad de reservas que haga el usuario funcionando como un tipo de fondo de ahorro por cada reserva que haga.
 
 ### Tiers de confianza por stake
 
@@ -292,14 +418,15 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 ---
 
 
-### Ideas por integrar
+### Ideas por considerar
 
-- Sistema de tokens con marketplace de intercambio
 - Opción de liquid staking para usuarios avanzados
 - Jurado descentralizado con staking económico
 - Agentes de IA + integración x402
 - Chat en tiempo real (para el hackathon, mensajería básica)
 - Integrar sistema de verificación de propiedades con app para evitar imágenes falseadas con IA
+- La suma de reseñas y puntos dentro de la plataforma genera descuentos en la plataforma cada X cantidad de reservas, aumentando el dinero que gana el host y reduciendo los costos del usuario.
+- Los dueños de las propiedades pueden pagar una tarifa (en la criptomoneda nativa de tu plataforma o en dólares) para que su alojamiento aparezca fijado en la página principal o en la parte superior de los resultados de búsqueda durante un fin de semana.
 
 ## Preguntas abiertas
 
