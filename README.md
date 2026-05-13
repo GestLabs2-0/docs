@@ -422,7 +422,7 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 
 - Opción de liquid staking para usuarios avanzados
 - Jurado descentralizado con staking económico
-- Agentes de IA + integración x402
+- Implementación de agente de IA que analice la personalidad, gustos y necesidades del usuario para recomendarle localizaciones o buscarlas por él en el caso de que no quiera decidir + integración x402.
 - Chat en tiempo real (para el hackathon, mensajería básica)
 - Integrar sistema de verificación de propiedades con app para evitar imágenes falseadas con IA
 - La suma de reseñas y puntos dentro de la plataforma genera descuentos en la plataforma cada X cantidad de reservas, aumentando el dinero que gana el host y reduciendo los costos del usuario.
