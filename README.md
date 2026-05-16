@@ -79,8 +79,8 @@ El backend **no replica lógica de negocio** que vive on-chain. Solo almacena:
 | Blockchain | Solana | — |
 | Smart contracts | Anchor (Rust) | — |
 | Frontend | Next.js | — |
-| Wallet / Auth | Privy | Dynamic, Magic, Turnkey, Civic |
-| KYC | Didit | Sumsub, Civic Pass, Stripe Identity |
+| Wallet / Auth | Web3Auth o Custom | Dynamic, Magic, Turnkey, Privy |
+| KYC | Didit o Sumsub | Sumsub, Civic Pass, Stripe Identity |
 | Lending / Yield | Kamino Finance | MarginFi, Drift |
 | Token de pago | USDC | — |
 | Liquid staking (opcional) | Marinade (mSOL) / Jito (jitoSOL) | — |
@@ -365,7 +365,7 @@ El porcentaje del slash debe variar de acuerdo a la gravedad de la disputa y es 
 
 ---
 
-## Onboarding no-crypto (estrategia de Privy)
+## Onboarding no-crypto (estrategia de Web2Auth)
 
 ```
 Nivel 0 — Usuario nuevo
@@ -377,14 +377,14 @@ Nivel 1 — Usuario con historial
   Puede ver su ReputationAccount en un explorador si quiere.
 
 Nivel 2 — Usuario avanzado
-  Puede exportar su private key desde Privy.
+  Puede exportar su private key desde Web2Auth.
   Conecta su propia wallet (Phantom, Backpack).
   Entiende el valor de la soberanía de sus datos.
 ```
 
 ---
 
-## Ideas experimentales por definir
+## Ideas experimentales por definir para los siguientes stages.
 
 ### Fondo de reservas
 
@@ -417,6 +417,17 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 
 ---
 
+### Jurado descentralizado para disputas: 
+
+La idea es implementar una solución similar a Kleros para tener un sistema de disputas justo y descentralizado dando premios a los usuarios por una buena decisión y penalizando una moralidad no alineada a la sociedad.
+
+Cuando se abre una disputa, el contrato publica el caso con la evidencia en IPFS y abre una ventana de 48 horas. Cuando se abre una disputa, el contrato publica el caso con la evidencia en IPFS y abre una ventana de 48 horas. Cualquier usuario verificado por KYC puede participar como jurado apostando voluntariamente la cantidad de USDC que quiera arriesgar.
+
+Durante esas 48 horas nadie ve los votos de otros. Cada jurado sella su decisión criptográficamente junto con su apuesta. Al cierre de la ventana todos revelan simultáneamente. Si no se alcanzan 5 votos como mínimo, la ventana se extiende una vez antes de escalar a admins.
+
+Todos los votos valen exactamente lo mismo independientemente de quién seas o cuánto apuestes. La apuesta no multiplica tu influencia, solo es el mecanismo que te obliga a ser honesto porque si votas contra la mayoría pierdes exactamente lo que apostaste. Si votas con la mayoría, recuperas tu apuesta más una ganancia proporcional tomada del dinero de los perdedores.
+
+---
 
 ### Ideas por considerar
 
@@ -427,6 +438,7 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 - Integrar sistema de verificación de propiedades con app para evitar imágenes falseadas con IA
 - La suma de reseñas y puntos dentro de la plataforma genera descuentos en la plataforma cada X cantidad de reservas, aumentando el dinero que gana el host y reduciendo los costos del usuario.
 - Los dueños de las propiedades pueden pagar una tarifa (en la criptomoneda nativa de tu plataforma o en dólares) para que su alojamiento aparezca fijado en la página principal o en la parte superior de los resultados de búsqueda durante un fin de semana.
+
 
 ## Preguntas abiertas
 
