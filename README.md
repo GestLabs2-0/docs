@@ -365,7 +365,7 @@ El porcentaje del slash debe variar de acuerdo a la gravedad de la disputa y es 
 
 ---
 
-## Onboarding no-crypto (estrategia de Web2Auth)
+## Onboarding no-crypto (estrategia de Web3Auth)
 
 ```
 Nivel 0 — Usuario nuevo
@@ -377,7 +377,7 @@ Nivel 1 — Usuario con historial
   Puede ver su ReputationAccount en un explorador si quiere.
 
 Nivel 2 — Usuario avanzado
-  Puede exportar su private key desde Web2Auth.
+  Puede exportar su private key desde Web3Auth.
   Conecta su propia wallet (Phantom, Backpack).
   Entiende el valor de la soberanía de sus datos.
 ```
