@@ -1,7 +1,5 @@
 # Stayke — Documento de Diseño del Proyecto
 
-> Estado: borrador de trabajo. Revisión pendiente.
-
 ---
 
 ## Visión general
@@ -20,7 +18,7 @@ Garantizamos la seguridad, reputación, confianza e identidad de todos los usuar
 
 ### Visión
 
-Queremos ser precursores en una infraestructura que cree una reputación de confianza online para reservas y otras múltiples actividades que puedan realizar nuestros clientes. idad
+Queremos ser precursores en una infraestructura que cree una reputación de confianza online para reservas y otras múltiples actividades que puedan realizar nuestros clientes.
 
 ---
 
@@ -28,7 +26,7 @@ Queremos ser precursores en una infraestructura que cree una reputación de conf
 
 El nucleo del modelo de negocios usa la reservación de propiedades como fuente de ingresos principal, sin embargo, esto provoca que Stayke compita contra negocios con más confianza y viejos en este mercado, por eso nosotros decidimos dejar de lado la competencia y enfocarnos en mercados pequeños a los que las empresas grandes no pueden llegar por fricciones bancarias y falta de confianza. 
 
-Stayke opera dentro de la blockchain de Solana para mantener un registro público de la reputación de un usuario sin tener que almacenar datos públicos delicados y evadir las fricciones bancarias de distintos países sin complicar la comunicación con la blockchain usando Privy como wallet embebida.
+Stayke opera dentro de la blockchain de Solana para mantener un registro público de la reputación de un usuario sin tener que almacenar datos públicos delicados y evadir las fricciones bancarias de distintos países sin complicar la comunicación con la blockchain usando una wallet embebida.
 
 Para que Stayke pueda ofrecer seguridad, este exigirá un depósito inicial luego de la primera reserva o hosting realizado que permanacerá en una tesorería controlada por el contrato inteligente. El objetivo de la tesorería es que se penalice a los usuarios que cometan alguna infracción y sirva de recompensación a los usuarios que sufrieron el percance. Esto aumenta la fricción de los usuarios que ingresan a la plataforma, pero garantiza que aquellos que ingresen son personas de confianza.
 
@@ -79,7 +77,7 @@ El backend **no replica lógica de negocio** que vive on-chain. Solo almacena:
 | Blockchain | Solana | — |
 | Smart contracts | Anchor (Rust) | — |
 | Frontend | Next.js | — |
-| Wallet / Auth | Web3Auth o Custom | Dynamic, Magic, Turnkey, Privy |
+| Wallet / Auth | Web3Auth o Custom | Dynamic, Magic, Turnkey |
 | KYC | Didit o Sumsub | Sumsub, Civic Pass, Stripe Identity |
 | Lending / Yield | Kamino Finance | MarginFi, Drift |
 | Token de pago | USDC | — |
@@ -89,16 +87,17 @@ El backend **no replica lógica de negocio** que vive on-chain. Solo almacena:
 
 ## Autenticación
 
-### Onboarding con Privy
+### Onboarding con Web3Auth
 
-Privy abstrae completamente la wallet para el usuario no-crypto. El usuario se registra con email; Privy genera una wallet Solana real en background. Las firmas para SIWS y para transacciones on-chain suceden de forma transparente.
+Web3Auth abstrae completamente la wallet para el usuario no-crypto. El usuario se registra con email o proveedor social (Google, Apple); Web3Auth genera una wallet Solana real en background usando MPC (Multi-Party Computation), de modo que ninguna entidad tiene la clave privada completa. Las firmas para SIWS y para transacciones on-chain suceden de forma transparente.
 
-### Flujo Sign-In with Privy
+### Flujo Sign-In with Web3Auth
 
-Usamos la verificación con Privy.
-1.- Se obtiene el access token de Privy al iniciar sesión en el frontend. 
-2.- Se envía el access token al backend como un bearer token.
-3.- Se valida el access token con la SDK de Privy. 
+Usamos la verificación con Web3Auth.
+1.- El usuario se autentica con email o proveedor social en el frontend.
+2.- Web3Auth devuelve un JWT y reconstruye la wallet del usuario de forma descentralizada.
+3.- Se envía el JWT al backend como bearer token para validar la sesión.
+4.- El backend verifica el JWT con la SDK de Web3Auth y asocia la `pubkey` resultante al perfil del usuario.
 
 ---
 
@@ -242,8 +241,8 @@ de depósito inicial. El objetivo es que los usuarios perciban que la plataforma
 │ • Determina tier de confianza del usuario               │
 │ • OPCIONAL: el usuario decide si deposita               │
 │                                                         │
-│ Porción mínima → Kamino lending (obligatoria)           │
-│ Excedente → mSOL/jSOL si el usuario lo autoriza         │
+│ Lending → Kamino (100% opt-in, decisión del usuario)    │
+│ Staking → mSOL/jSOL (100% opt-in, decisión del usuario) │
 └─────────────────────────────────────────────────────────┘
 
 
@@ -359,9 +358,9 @@ El porcentaje del slash debe variar de acuerdo a la gravedad de la disputa y es 
 
 ### Modelo de resolución escalado
 
-**MVP (hackathon):** Administradores centralizados e imparciales provistos por Stayke. Solo pueden juzgar disputas — no pueden remover baneos arbitrariamente ni modificar el protocolo.
+**MVP (Stage 1):** Administradores centralizados e imparciales provistos por Stayke. Solo pueden juzgar disputas — no pueden remover baneos arbitrariamente ni modificar el protocolo.
 
-**Roadmap V2:** Sistema de jurado con poder de voto ligado a reputación alta. Staking económico cuando la plataforma tenga volumen suficiente.
+**Stage 4:** Sistema de jurado descentralizado con poder de voto ligado a reputación alta. Staking económico cuando la plataforma tenga volumen suficiente de disputas para alimentarlo.
 
 ---
 
@@ -369,7 +368,7 @@ El porcentaje del slash debe variar de acuerdo a la gravedad de la disputa y es 
 
 ```
 Nivel 0 — Usuario nuevo
-  Registro con email. Todo sucede on-chain en background.
+  Registro con email o proveedor social. Todo sucede on-chain en background.
   Nunca ve una wallet, nunca firma manualmente, nunca paga gas.
 
 Nivel 1 — Usuario con historial
@@ -377,7 +376,7 @@ Nivel 1 — Usuario con historial
   Puede ver su ReputationAccount en un explorador si quiere.
 
 Nivel 2 — Usuario avanzado
-  Puede exportar su private key desde Web3Auth.
+  Puede exportar su private key desde Web3Auth (MPC key reconstruction).
   Conecta su propia wallet (Phantom, Backpack).
   Entiende el valor de la soberanía de sus datos.
 ```
@@ -417,22 +416,14 @@ Token interno de la plataforma. Difícil de conseguir, no especulativo.
 
 ---
 
-### Jurado descentralizado para disputas: 
+### Jurado descentralizado para disputas
 
-La idea es implementar una solución similar a Kleros para tener un sistema de disputas justo y descentralizado dando premios a los usuarios por una buena decisión y penalizando una moralidad no alineada a la sociedad.
-
-Cuando se abre una disputa, el contrato publica el caso con la evidencia en IPFS y abre una ventana de 48 horas. Cuando se abre una disputa, el contrato publica el caso con la evidencia en IPFS y abre una ventana de 48 horas. Cualquier usuario verificado por KYC puede participar como jurado apostando voluntariamente la cantidad de USDC que quiera arriesgar.
-
-Durante esas 48 horas nadie ve los votos de otros. Cada jurado sella su decisión criptográficamente junto con su apuesta. Al cierre de la ventana todos revelan simultáneamente. Si no se alcanzan 5 votos como mínimo, la ventana se extiende una vez antes de escalar a admins.
-
-Todos los votos valen exactamente lo mismo independientemente de quién seas o cuánto apuestes. La apuesta no multiplica tu influencia, solo es el mecanismo que te obliga a ser honesto porque si votas contra la mayoría pierdes exactamente lo que apostaste. Si votas con la mayoría, recuperas tu apuesta más una ganancia proporcional tomada del dinero de los perdedores.
+Ver Stage 4 del Roadmap para la descripción completa del mecanismo.
 
 ---
 
 ### Ideas por considerar
 
-- Opción de liquid staking para usuarios avanzados
-- Jurado descentralizado con staking económico
 - Implementación de agente de IA que analice la personalidad, gustos y necesidades del usuario para recomendarle localizaciones o buscarlas por él en el caso de que no quiera decidir + integración x402.
 - Chat en tiempo real (para el hackathon, mensajería básica)
 - Integrar sistema de verificación de propiedades con app para evitar imágenes falseadas con IA
@@ -440,10 +431,68 @@ Todos los votos valen exactamente lo mismo independientemente de quién seas o c
 - Los dueños de las propiedades pueden pagar una tarifa (en la criptomoneda nativa de tu plataforma o en dólares) para que su alojamiento aparezca fijado en la página principal o en la parte superior de los resultados de búsqueda durante un fin de semana.
 
 
+## Roadmap
+
+### Stage 1 — MVP
+
+El objetivo del Stage 1 es demostrar el loop completo de una reserva end-to-end con identidad, reputación y escrow funcionando on-chain. Todo lo que no sea esencial para ese loop queda fuera de este stage.
+
+**Contratos Anchor (on-chain):**
+- `IdentityAccount` — creación, verificación y congelamiento por baneo
+- `UserProfile` — perfil de usuario vinculado a la identidad
+- `ReputationProfile` — actualización por booking completado, review y disputa resuelta
+- Escrow de reserva — flujo completo: solicitud → aprobación doble → confirmación → en proceso → cierre → reseñas
+- Sistema de disputas semi-centralizado con admins de Stayke como árbitros
+
+**Integraciones:**
+- KYC con Didit o Sumsub. El backend actúa como oracle centralizado: computa el hash del documento y firma la instrucción `verify_identity` hacia el programa Anchor
+- Autenticación con Web3Auth — onboarding sin fricción para usuarios no-crypto
+
+**Fuera de scope en Stage 1:**
+- Lending y staking (ambos son 100% opcionales y se implementan en Stage 2)
+- Tokens de reputación
+- Mercado de re-ventas
+- Jurado descentralizado
+
+---
+
+### Stage 2 — Economía de confianza
+
+El objetivo del Stage 2 es monetizar la confianza acumulada en el Stage 1 y crear incentivos de retención para hosts y huéspedes.
+
+- **Lending opcional con Kamino Finance** — 100% opt-in por parte del usuario. El usuario autoriza explícitamente que una porción de su depósito sea enviada a Kamino. Stayke no mueve fondos sin aprobación activa.
+- **Liquid staking opcional** — mSOL (Marinade) y jitoSOL (Jito) como alternativa para usuarios avanzados que prefieran exposición a SOL.
+- **Fondo de liquidez en escrow** — opción para que el host (y el huésped, si aplica durante el período de cancelación) autoricen que los fondos en escrow generen yield durante la reserva activa.
+- **Tiers de confianza por stake** — beneficios diferenciados según el monto depositado en la plataforma.
+- **Tokens de reputación de Stayke** — token interno no especulativo, difícil de conseguir, que reduce fees y otorga beneficios por uso frecuente.
+
+---
+
+### Stage 3 — Expansión del mercado
+
+El objetivo del Stage 3 es ampliar la economía de la plataforma con nuevas modalidades de transacción y visibilidad.
+
+- **Mercado de re-venta de reservas** — piloto controlado con hosts seleccionados. La re-venta requiere acuerdo previo entre el usuario original y el host; el host debe aceptar al nuevo huésped antes de completar la transferencia.
+- **Visibilidad pagada** — los hosts pueden pagar para destacar su propiedad en resultados de búsqueda o en la página principal durante períodos definidos.
+- **Fondo de reservas (programa de fidelidad)** — acumulación de beneficios por cantidad de reservas completadas, similar a un programa de millas.
+- **Expansión geográfica** — incorporación de mercados adicionales fuera del piloto inicial.
+
+---
+
+### Stage 4 — Descentralización
+
+El objetivo del Stage 4 es reducir la dependencia de Stayke como árbitro central y transferir poder de gobernanza a la comunidad. Este stage se activa cuando el volumen de la plataforma sea suficiente para sostener los mecanismos descritos.
+
+- **Jurado descentralizado para disputas** — implementación similar a Kleros. Cuando se abre una disputa, el caso y la evidencia se publican en IPFS. Cualquier usuario verificado por KYC puede participar como jurado apostando voluntariamente USDC. El sistema de votación es de commit-reveal (48 horas de ventana); todos los votos valen igual independientemente de la apuesta. Votar con la mayoría recupera la apuesta más una ganancia proporcional; votar contra la mayoría implica perder lo apostado.
+- **Descentralización del oracle de KYC** — evaluación de alternativas al oracle centralizado del Stage 1.
+- **Agente de IA + protocolo x402** — integración de un agente que analice preferencias del usuario y gestione búsqueda y reserva de forma autónoma.
+
+---
+
 ## Preguntas abiertas
 
 - [ ] **Flujo de reserva completo paso a paso** — prerequisito crítico para todo el trabajo de contratos restante
-- [ ] **¿Quién paga el gas?** — política de gasless transactions o fee delegation para usuarios no-crypto con Privy
+- [ ] **¿Quién paga el gas?** — política de gasless transactions o fee delegation para usuarios no-crypto con Web3Auth
 - [ ] **Estructura del `ReputationAccount`** — cómo escala con bookings y reviews
 - [ ] **Montos mínimos de depósito por tier** — valores concretos
 - [ ] **Cómo se obtienen los tokens de reputación** — por tiempo, por stake, por actividad, o venta limitada
