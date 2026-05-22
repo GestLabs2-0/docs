@@ -507,8 +507,8 @@ El objetivo del Stage 4 es reducir la dependencia de Stayke como árbitro centra
 | Persona           | Título                                          | Responsabilidad principal                             |
 | ----------------- | ----------------------------------------------- | ----------------------------------------------------- |
 | Gabriel Torres    | CEO & Co-founder                                | Producto, visión, smart contracts y dirección general |
-| Gallbers Gallardo | CTO & Co-founder                                | Arquitectura técnica y liderazgo de ingeniería        |
+| Gallbers Gallardo | CTO                                             | Arquitectura técnica y liderazgo de ingeniería        |
 | Raúl González     | Backend Lead & Co-founder                       | Backend e integraciones                               |
 | José Medina       | Frontend Engineer & Co-founder                  | Frontend e integraciones                              |
-| Kevin Araujo      | Backend Engineer & Co-founder                   | Backend                                               |
-| Derek Rojo        | Founding Designer & Marketing Lead & Co-founder | Diseño, branding y marketing                          |
+| Kevin Araujo      | Backend Engineer                                | Backend                                               |
+| Derek Rojo        | Founding Designer & Marketing Lead              | Diseño, branding y marketing                          |
