@@ -503,11 +503,12 @@ El objetivo del Stage 4 es reducir la dependencia de Stayke como árbitro centra
 
 ## Equipo
 
-| Persona | Rol principal | Areas de apoyo | Rol en el registro |
-|---|---|---|---|
-| Derek Rojo | Designer / Marketing | Trainee Dev frontend | Marketing y diseño |
-| Gallbers Gallardo | Tech Lead / Blockchain Engineer | Frontend, Backend | CTO | 
-| Gabriel Torres | Smart contracts / Anchor | Frontend, Backend | Smart contracts / CEO & Co-founder |
-| José Medina | Frontend / Integraciones | Frontend | Co-founder & Frontend Dev |
-| Kevin Araujo | Backend Dev | Frontend integraciones y maquetación | Backend Dev |
-| Raúl González | Backend / Integraciones | Frontend Integraciones / Organizacion | Co-founder & Backend Lead |
+
+| Persona           | Título                             | Responsabilidad principal                             |
+| ----------------- | ---------------------------------- | ----------------------------------------------------- |
+| Gabriel Torres    | CEO & Co-founder                   | Producto, visión, smart contracts y dirección general |
+| Gallbers Gallardo | CTO & Co-founder                   | Arquitectura técnica y liderazgo de ingeniería        |
+| Raúl González     | Backend Lead & Co-founder          | Backend e integraciones                               |
+| José Medina       | Frontend Engineer & Co-founder     | Frontend e integraciones                              |
+| Kevin Araujo      | Backend Engineer & Co-founder      | Backend                                               |
+| Derek Rojo        | Founding Designer & Marketing Lead | Diseño, branding y marketing                          |
